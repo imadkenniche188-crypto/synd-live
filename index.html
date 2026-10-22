@@ -11,72 +11,130 @@
 <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Crect width='180' height='180' rx='40' fill='%230b1020'/%3E%3Ctext x='90' y='112' font-family='Arial' font-size='72' font-weight='bold' fill='%232f6bff' text-anchor='middle'%3ES%3C/text%3E%3C/svg%3E">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Crect width='180' height='180' rx='40' fill='%230b1020'/%3E%3Ctext x='90' y='112' font-family='Arial' font-size='72' font-weight='bold' fill='%232f6bff' text-anchor='middle'%3ES%3C/text%3E%3C/svg%3E">
 <link rel="manifest" href='data:application/manifest+json,{"name":"Suivi SYND","short_name":"Suivi SYND","start_url":"./","display":"standalone","background_color":"%230b1020","theme_color":"%230b1020"}'>
-<title>Suivi SYND en direct</title>
+<title>Suivi SYND — Panel et alertes</title>
 <style>
 :root{color-scheme:dark}
-body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:#0b1020;color:#e8ecf7;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}
-.card{width:min(680px,94vw);background:#121a2f;border:1px solid #223052;border-radius:20px;padding:24px;box-shadow:0 20px 60px #0007}
-h1{margin:0 0 4px;font-size:22px}
-p.sub{margin:0 0 22px;color:#93a1c0;font-size:14px}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px}
-.box{background:#0d1424;border:1px solid #223052;border-radius:14px;padding:16px}
-.label{font-size:12px;color:#8ea0c4;text-transform:uppercase;letter-spacing:.08em}
-.value{font-size:26px;font-weight:700;margin-top:6px}
-.change{font-size:14px;margin-top:4px}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;background:#0b1020;color:#e8ecf7;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;padding:calc(env(safe-area-inset-top) + 18px) 14px calc(env(safe-area-inset-bottom) + 18px)}
+.wrap{max-width:720px;margin:0 auto}
+.card{background:#121a2f;border:1px solid #223052;border-radius:20px;padding:22px;margin-bottom:16px;box-shadow:0 18px 50px #0006}
+h1{margin:0;font-size:21px}
+.sub{margin:6px 0 0;color:#93a1c0;font-size:13px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-top:18px}
+.box{background:#0d1424;border:1px solid #223052;border-radius:14px;padding:14px}
+.label{font-size:11px;color:#8ea0c4;text-transform:uppercase;letter-spacing:.08em}
+.value{font-size:24px;font-weight:750;margin-top:5px;word-break:break-word}
+.change{font-size:13px;margin-top:3px}
 .up{color:#3ddc84}.down{color:#ff6b6b}
-.holdings{margin-top:22px;padding-top:18px;border-top:1px solid #223052;display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px}
-.small{font-size:12px;color:#7f8db0;margin-top:18px}
-button{margin-top:18px;background:#2f6bff;border:0;color:#fff;padding:12px 16px;border-radius:12px;font-weight:600;cursor:pointer;width:100%}
-button:hover{filter:brightness(1.1)}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+input{width:100%;background:#0d1424;border:1px solid #2b3b63;color:#e8ecf7;border-radius:12px;padding:12px;font-size:16px;margin-top:6px}
+input:focus{outline:2px solid #2f6bff;border-color:#2f6bff}
+button{background:#2f6bff;border:0;color:#fff;padding:13px 16px;border-radius:12px;font-weight:650;font-size:15px;cursor:pointer;width:100%;margin-top:12px}
+button.secondary{background:#223052}
+button.danger{background:#7f1d1d}
+#alertBox{display:none;margin-top:14px;padding:14px;border-radius:14px;font-weight:650}
+#alertBox.on{display:block;background:#3a1d1d;border:1px solid #ff6b6b;color:#ffb4b4}
 #status{font-size:12px;color:#8ea0c4;margin-top:10px;text-align:center}
+.small{font-size:11px;color:#7f8db0;margin-top:14px;line-height:1.45}
 </style>
 </head>
 <body>
-<main class="card">
-  <h1>Syndicate (SYND) — taux en direct</h1>
-  <p class="sub">Données CoinGecko · actualisation automatique toutes les 60 secondes</p>
-  <div class="grid">
-    <div class="box"><div class="label">Prix EUR</div><div class="value" id="eur">—</div><div class="change" id="chg-eur"></div></div>
-    <div class="box"><div class="label">Prix USD</div><div class="value" id="usd">—</div><div class="change" id="chg-usd"></div></div>
-  </div>
-  <div class="holdings">
-    <div class="box"><div class="label">Valeur de 53 000 SYND</div><div class="value" id="total-eur">—</div><div class="change">EUR</div></div>
-    <div class="box"><div class="label">Objectif doublement</div><div class="value" id="target">—</div><div class="change">0,0130 USD</div></div>
-  </div>
-  <button onclick="load()">Actualiser maintenant</button>
-  <div id="status">Chargement…</div>
-  <p class="small">Source : API publique CoinGecko. Les prix peuvent varier légèrement selon l’exchange. Ceci est informatif et ne constitue pas un conseil d’investissement.</p>
-</main>
+<div class="wrap">
+  <section class="card">
+    <h1>Syndicate (SYND)</h1>
+    <p class="sub">Panel en direct · CoinGecko · actualisation toutes les 60 s</p>
+    <div class="grid">
+      <div class="box"><div class="label">Prix EUR</div><div class="value" id="eur">—</div><div class="change" id="chg-eur"></div></div>
+      <div class="box"><div class="label">Prix USD</div><div class="value" id="usd">—</div><div class="change" id="chg-usd"></div></div>
+      <div class="box"><div class="label">53 000 SYND</div><div class="value" id="total-eur">—</div><div class="change">Valeur en EUR</div></div>
+      <div class="box"><div class="label">Objectif doublement</div><div class="value" id="target">—</div><div class="change">0,0130 USD</div></div>
+    </div>
+    <button onclick="load(true)">Actualiser maintenant</button>
+    <div id="status">Chargement…</div>
+  </section>
+
+  <section class="card">
+    <h1 style="font-size:18px">Alertes de prix</h1>
+    <p class="sub">En USD. Les alertes restent enregistrées sur cet appareil.</p>
+    <div class="row">
+      <div><div class="label">Alerte si prix ≤</div><input id="low" type="number" step="0.0001" inputmode="decimal" placeholder="0,0046"></div>
+      <div><div class="label">Alerte si prix ≥</div><input id="high" type="number" step="0.0001" inputmode="decimal" placeholder="0,0130"></div>
+    </div>
+    <button onclick="saveAlerts()">Enregistrer les alertes</button>
+    <button class="secondary" onclick="askNotifications()">Activer les notifications</button>
+    <button class="danger" onclick="clearAlerts()">Effacer les alertes</button>
+    <div id="alertBox"></div>
+    <p class="small">Les notifications fonctionnent lorsque la page est ouverte dans Safari ou ajoutée à l’écran d’accueil. Pour une alerte même application fermée, il faudrait un serveur de notifications ; cette version vérifie les alertes à chaque ouverture et actualisation.</p>
+  </section>
+</div>
+
 <script>
-const UNITS = 53000;
-const TARGET_USD = 0.0130;
-const API = 'https://api.coingecko.com/api/v3/simple/price?ids=syndicate&vs_currencies=eur,usd&include_24hr_change=true';
-const fmt = (n, cur='EUR') => new Intl.NumberFormat('fr-FR',{style:'currency',currency:cur,minimumFractionDigits:6,maximumFractionDigits:6}).format(n);
-const fmtTotal = n => new Intl.NumberFormat('fr-FR',{style:'currency',currency:'EUR',maximumFractionDigits:2}).format(n);
-function setChange(el, pct){
-  if(pct == null){ el.textContent='Variation 24 h : —'; el.className='change'; return; }
-  const sign = pct >= 0 ? '+' : '';
-  el.textContent = `Variation 24 h : ${sign}${pct.toFixed(2)} %`;
-  el.className = 'change ' + (pct >= 0 ? 'up' : 'down');
+const UNITS=53000, TARGET_USD=0.0130;
+const API='https://api.coingecko.com/api/v3/simple/price?ids=syndicate&vs_currencies=eur,usd&include_24hr_change=true';
+const fmt=(n,c='EUR')=>new Intl.NumberFormat('fr-FR',{style:'currency',currency:c,minimumFractionDigits:6,maximumFractionDigits:6}).format(n);
+const fmtTotal=n=>new Intl.NumberFormat('fr-FR',{style:'currency',currency:'EUR',maximumFractionDigits:2}).format(n);
+const lowInput=document.getElementById('low'), highInput=document.getElementById('high'), alertBox=document.getElementById('alertBox');
+
+function loadAlerts(){
+  lowInput.value=localStorage.getItem('synd_low')||'';
+  highInput.value=localStorage.getItem('synd_high')||'';
 }
-async function load(){
-  try{
-    const r = await fetch(API);
-    if(!r.ok) throw new Error('HTTP ' + r.status);
-    const d = (await r.json()).syndicate;
-    document.getElementById('eur').textContent = fmt(d.eur);
-    document.getElementById('usd').textContent = fmt(d.usd, 'USD');
-    setChange(document.getElementById('chg-eur'), d.eur_24h_change);
-    setChange(document.getElementById('chg-usd'), d.usd_24h_change);
-    document.getElementById('total-eur').textContent = fmtTotal(UNITS * d.eur);
-    document.getElementById('target').textContent = fmtTotal(UNITS * TARGET_USD * (d.eur / d.usd));
-    document.getElementById('status').textContent = 'Dernière mise à jour : ' + new Date().toLocaleTimeString('fr-FR');
-  }catch(e){
-    document.getElementById('status').textContent = 'Impossible de récupérer le prix : ' + e.message;
+function saveAlerts(){
+  localStorage.setItem('synd_low',lowInput.value);
+  localStorage.setItem('synd_high',highInput.value);
+  alertBox.className='';alertBox.style.display='none';
+  document.getElementById('status').textContent='Alertes enregistrées à '+new Date().toLocaleTimeString('fr-FR');
+  load(true);
+}
+function clearAlerts(){
+  localStorage.removeItem('synd_low');localStorage.removeItem('synd_high');
+  lowInput.value='';highInput.value='';
+  alertBox.className='';alertBox.style.display='none';
+  document.getElementById('status').textContent='Alertes effacées';
+}
+async function askNotifications(){
+  if(!('Notification' in window)){alert('Notifications non prises en charge par ce navigateur.');return;}
+  const p=await Notification.requestPermission();
+  document.getElementById('status').textContent= p==='granted' ? 'Notifications activées' : 'Notifications non autorisées';
+}
+function notify(title,body){
+  if('Notification' in window && Notification.permission==='granted'){new Notification(title,{body});}
+}
+function setChange(el,pct){
+  if(pct==null){el.textContent='Variation 24 h : —';el.className='change';return;}
+  el.textContent=`Variation 24 h : ${pct>=0?'+':''}${pct.toFixed(2)} %`;
+  el.className='change '+(pct>=0?'up':'down');
+}
+function checkAlerts(price){
+  const low=parseFloat(lowInput.value), high=parseFloat(highInput.value);
+  let msg='';
+  if(!isNaN(low)&&price<=low) msg=`Alerte : SYND est passé sous ${low} USD (prix actuel : ${price} USD).`;
+  if(!isNaN(high)&&price>=high) msg=`Alerte : SYND a atteint ${high} USD ou plus (prix actuel : ${price} USD).`;
+  if(msg){
+    alertBox.textContent=msg;alertBox.className='on';alertBox.style.display='block';
+    notify('Alerte SYND',msg);
+  }else{
+    alertBox.className='';alertBox.style.display='none';
   }
 }
-load();
-setInterval(load, 60000);
+async function load(manual=false){
+  try{
+    const r=await fetch(API);
+    if(!r.ok)throw new Error('HTTP '+r.status);
+    const d=(await r.json()).syndicate;
+    document.getElementById('eur').textContent=fmt(d.eur);
+    document.getElementById('usd').textContent=fmt(d.usd,'USD');
+    setChange(document.getElementById('chg-eur'),d.eur_24h_change);
+    setChange(document.getElementById('chg-usd'),d.usd_24h_change);
+    document.getElementById('total-eur').textContent=fmtTotal(UNITS*d.eur);
+    document.getElementById('target').textContent=fmtTotal(UNITS*TARGET_USD*(d.eur/d.usd));
+    document.getElementById('status').textContent=(manual?'Actualisé':'Mise à jour')+' : '+new Date().toLocaleTimeString('fr-FR');
+    checkAlerts(d.usd);
+  }catch(e){
+    document.getElementById('status').textContent='Erreur : '+e.message;
+  }
+}
+loadAlerts();load();setInterval(()=>load(false),60000);
 </script>
 </body>
 </html>
